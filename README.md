@@ -4,5 +4,5 @@
 2. Update-Database
 3. Project run
 
-Admin Role: username: admin, password: admin1
+Admin Role: username: admin, password: admin1 <br>
 User Role: username: user, password: user1
