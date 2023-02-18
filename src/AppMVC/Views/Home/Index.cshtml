@@ -1,0 +1,64 @@
+﻿@model IQueryable<AppMVC.Domain.Entities.Product>
+
+
+<style>
+    table, th, td {
+    border: 1px solid black;
+    border-collapse: collapse;
+    padding: 10px;
+    }
+    th {
+    background-color: lightgray;
+    }
+</style>
+
+<h3>Products</h3>
+
+    <div>
+        <button class="btn btn-success"> 
+            <a style="text-decoration:none; color:white" asp-controller="User" asp-action="Logout">Logout</a> 
+        </button>
+    </div>
+
+    <table>
+      <tr>
+        <th style="padding:0 15px 0 15px;">id </th>
+        <th style="padding:0 15px 0 30px;">Title</th>
+        <th style="padding:0 15px 0 30px;">Quantity</th>
+        <th style="padding:0 15px 0 30px;">Price</th>
+      </tr>
+
+        @foreach (var item in Model)
+        {
+               <tr>
+                   <td style="padding:0 15px 0 15px;"> @Html.DisplayFor(modelItem => item.Id) </td>
+                   <td style="padding:0 15px 0 30px;"> @Html.DisplayFor(modelItem => item.Title)</td>
+                   <td style="padding:0 15px 0 30px;"> @Html.DisplayFor(modelItem => item.Quantity)</td>
+                   <td style="padding:0 15px 0 30px;"> @Html.DisplayFor(modelItem => item.Price)</td>
+                @if (User.IsInRole("Admin"))
+                {
+                   <td style="padding:0 15px 0 30px;"> 
+                       <a asp-controller="Home" asp-action="EditProduct" asp-route-productId="@item.Id">Edit</a> 
+                   </td>
+                   <td style="padding:0 15px 0 30px;"> 
+                       <a style="color:red" asp-controller="Home" asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                   </td>
+                }
+              </tr>   
+        }
+
+    </table>
+
+@if (User.IsInRole("Admin"))
+{
+    <div class="form-group mt-4" style="display: inline-block; margin-right: 10px;">
+        <button class="btn btn-success">
+            <a style="text-decoration:none; color:white" asp-controller="Home" asp-action="Create">Add new</a> 
+        </button>
+    </div>    
+    <div class="form-group m-lg-5" style="display: inline-block;">
+        <button class="btn btn-info">
+            <a style="text-decoration:none; color:white" asp-controller="Home" asp-action="History">History</a> 
+        </button>
+    </div>
+}
