@@ -90,8 +90,8 @@ namespace AppMVC.Infrastructure.Migrations
                 columns: new[] { "Id", "PasswordHash", "Salt", "UserName", "UserRole" },
                 values: new object[,]
                 {
-                    { 1, "admin1", "11e43068-c7c1-4be3-b98f-f7a165d48eb2", "admin", 0 },
-                    { 2, "user1", "cbeefd38-b8ad-4b6c-9448-24b4c4f2b147", "user", 1 }
+                    { 1, "admin1", "83f2aa34-24d2-4012-94ee-463f46e54078", "admin", 0 },
+                    { 2, "user1", "b5a4a53a-2477-47e3-898f-5563fd4a0d56", "user", 1 }
                 });
 
             migrationBuilder.CreateIndex(

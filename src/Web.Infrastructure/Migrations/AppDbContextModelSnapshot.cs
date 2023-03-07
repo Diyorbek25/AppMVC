@@ -142,7 +142,7 @@ namespace AppMVC.Infrastructure.Migrations
                         {
                             Id = 1,
                             PasswordHash = "admin1",
-                            Salt = "11e43068-c7c1-4be3-b98f-f7a165d48eb2",
+                            Salt = "83f2aa34-24d2-4012-94ee-463f46e54078",
                             UserName = "admin",
                             UserRole = 0
                         },
@@ -150,7 +150,7 @@ namespace AppMVC.Infrastructure.Migrations
                         {
                             Id = 2,
                             PasswordHash = "user1",
-                            Salt = "cbeefd38-b8ad-4b6c-9448-24b4c4f2b147",
+                            Salt = "b5a4a53a-2477-47e3-898f-5563fd4a0d56",
                             UserName = "user",
                             UserRole = 1
                         });
