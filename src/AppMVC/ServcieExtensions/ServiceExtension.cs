@@ -7,6 +7,7 @@ using AppMVC.Infrastructure.Repositories.ProductAudits;
 using AppMVC.Infrastructure.Repositories.Products;
 using AppMVC.Infrastructure.Repositories.Users;
 using Microsoft.EntityFrameworkCore;
+using AppMVC.Application.Services.ProductAudits;
 
 namespace AppMVC.ServcieExtensions;
 
@@ -33,7 +34,7 @@ public static class ServiceExtension
         services.AddSingleton<IUserFactory, UserFactory>();
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<IProductService, ProductService>();
-        services.AddScoped<IProductService, ProductService>();
+        services.AddScoped<IProductAuditService, ProductAuditService>();
 
         return services;
     }

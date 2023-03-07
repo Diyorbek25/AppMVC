@@ -1,10 +1,10 @@
-﻿using AppMVC.Models;
+﻿using AppMVC.Application.Services;
+using AppMVC.Controllers.Factories;
+using AppMVC.Domain.Entities;
+using AppMVC.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
-using AppMVC.Domain.Entities;
-using AppMVC.Infrastructure.Repositories.ProductAudits;
-using AppMVC.Infrastructure.Repositories.Products;
 
 namespace AppMVC.Controllers;
 
@@ -12,68 +12,19 @@ namespace AppMVC.Controllers;
 public class HomeController : Controller
 {
     private readonly ILogger<HomeController> _logger;
-    private readonly IProductRepository productRepository;
-    private readonly IProductAuditRepository productAuditRepository;
+    private readonly IProductService productService;
+    private readonly IProductAuditService productAuditService;
 
     public HomeController(
-        ILogger<HomeController> logger, 
-        IProductRepository productRepository, 
-        IProductAuditRepository productAuditRepository)
+        ILogger<HomeController> logger,
+        IProductService productService,
+        IProductAuditService productAuditService)
     {
         _logger = logger;
-        this.productRepository = productRepository;
-        this.productAuditRepository = productAuditRepository;
+        this.productService = productService;
+        this.productAuditService = productAuditService;
     }
 
-    public IActionResult Index()
-    {
-        var models = productRepository.SelectAll();
-
-        return View(models);
-    }
-
-    [HttpPost]
-    public async Task<IActionResult> EditProduct(ProductViewModel model, int id)
-    {
-        Product product = null;
-        if (ModelState.IsValid)
-        {
-            product = await productRepository.SelectByIdAsync(id);
-            ProductAudit productAudit = new ProductAudit()
-            {
-                Title = model.Title != product.Title ? model.Title : null,
-                Quantity = model.Quantity != product.Quantity ? model.Quantity : null,
-                Price = model.Price != product.Price ? model.Price : null,
-                ChangedDate = DateTime.Now,
-                UserId = int.Parse(User.Claims.ToArray()[2].Value),
-                ProductId = id
-            };
-
-            product.Title = model.Title;
-            product.Quantity = model.Quantity;
-            product.Price = model.Price;
-
-            await productRepository.UpdateAsync(product);
-            await productAuditRepository.InsertAsync(productAudit);
-        }
-
-        return View(product);
-    }
-
-    [HttpGet]
-    public async Task<IActionResult> EditProduct(int productId)
-    {
-        var product = await productRepository.SelectByIdAsync(productId);
-        return View(product);
-    }
-
-    public async Task<IActionResult> Delete(int id)
-    {
-        var product = await productRepository.SelectByIdAsync(id);
-        await productRepository.RemoveAsync(product);
-        
-        return RedirectToAction("Index");
-    }
 
     [HttpGet]
     public IActionResult Create()
@@ -84,19 +35,72 @@ public class HomeController : Controller
     [HttpPost]
     public async Task<IActionResult> Create(ProductViewModel model)
     {
-        if (ModelState.IsValid)
+        if (!ModelState.IsValid)
         {
-            var product = new Product()
-            {
-                Title = model.Title,
-                Quantity = model.Quantity,
-                Price = model.Price
-            };
-            await productRepository.InsertAsync(product);
+            return View();
         }
+
+        var product = ProductFactory.MapToProduct(model);
+        await productService.CreateProductAsync(product);
 
         return RedirectToAction("Index");
     }
+
+    public IActionResult Index()
+    {
+        var models = productService.RetrieveProducts();
+
+        return View(models);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> EditProduct(int productId)
+    {
+        var product = await productService
+            .RetrieveProductByIdAsync(productId);
+
+        return View(product);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> EditProduct(ProductViewModel model, int id)
+    {
+        if (ModelState.IsValid is false)
+        {
+            return View();
+        }
+
+        Product newProduct = ProductFactory.MapToProduct(model);
+        newProduct.Id = id;
+
+        var oldProduct = await productService
+            .RetrieveProductByIdAsync(id);
+
+        int userId = int.Parse(User.Claims.ToArray()[2].Value);
+
+        ProductAudit productAudit = ProductAuditFactory
+            .MapToProductAudit(
+            newProduct: newProduct,
+            oldProduct: oldProduct,
+            userId: userId);
+
+        var modifiedProduct = await productService
+            .ModifyProductAsync(newProduct);
+
+        await productAuditService
+            .CreateProductAuditAsync(productAudit);
+
+        return View(modifiedProduct);
+    }
+
+
+    public async Task<IActionResult> Delete(int id)
+    {
+        await productService.RemoveProductAsync(id);
+        
+        return RedirectToAction("Index");
+    }
+
 
     [HttpGet]
     public IActionResult History()
@@ -107,11 +111,8 @@ public class HomeController : Controller
     [HttpPost]
     public IActionResult History(Sort model)
     {
-        var productAudits = productAuditRepository.SelectAll()
-            .Where(
-            history => history.ChangedDate.Year == model.Date.Year &&
-            history.ChangedDate.Month == model.Date.Month &&
-            history.ChangedDate.Day == model.Date.Day);
+        var productAudits = productAuditService
+            .RetrieveProductAuditsSortByDate(model.Date);
 
         ViewData["productAudits"] = productAudits.ToList();
 

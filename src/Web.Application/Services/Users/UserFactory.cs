@@ -1,46 +1,18 @@
-﻿using AppMVC.Application.DataTransferObjects.Users;
-using AppMVC.Domain.Entities;
-using AppMVC.Domain.Enums;
+﻿using AppMVC.Domain.Entities;
 
 namespace AppMVC.Application.Services;
 
 public class UserFactory : IUserFactory
 {
-    public User MapToUser(UserDto userDto)
-    {
-        return new User()
-        {
-            Id = userDto.id,
-            UserName = userDto.userName,
-            UserRole = userDto.userRole
-        };
-    }
-
-    public User MapToUser(UserForCreationDto userForCreationDto)
-    {
-        return new User()
-        {
-            UserName = userForCreationDto.userName,
-            PasswordHash = userForCreationDto.passwordHash,
-            UserRole = Role.User
-        };
-    }
+   
 
     public void MapToUser(User storageUser,
-        UserForModificationDto userForModificationDto)
+        User userForModification)
     {
-        storageUser.UserName = userForModificationDto.userName 
+        storageUser.UserName = userForModification.UserName 
             ?? storageUser.UserName;
 
-        storageUser.PasswordHash = userForModificationDto.password 
+        storageUser.PasswordHash = userForModification.PasswordHash 
             ?? storageUser.PasswordHash;
-    }
-
-    public UserDto MapToUserDto(User user)
-    {
-        return new UserDto(
-            id: user.Id,
-            userName: user.UserName,
-            userRole: user.UserRole);
     }
 }

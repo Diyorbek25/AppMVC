@@ -1,7 +1,6 @@
 ﻿
 using AppMVC.Domain.Entities;
 using AppMVC.Infrastructure.Repositories.ProductAudits;
-using AppMVC.Infrastructure.Repositories.Products;
 
 namespace AppMVC.Application.Services.ProductAudits;
 
@@ -33,7 +32,7 @@ public class ProductAuditService : IProductAuditService
         return productAuditRepository.SelectAll();
     }
 
-    public IQueryable<ProductAudit> RetrieveProductAuditsSortByDate(DateOnly date)
+    public IQueryable<ProductAudit> RetrieveProductAuditsSortByDate(DateTime date)
     {
         var productAudits = productAuditRepository.SelectAll();
 

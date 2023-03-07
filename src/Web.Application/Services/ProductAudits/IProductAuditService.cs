@@ -6,6 +6,6 @@ public interface IProductAuditService
 {
     ValueTask<ProductAudit> CreateProductAuditAsync(ProductAudit productAudit);
     IQueryable<ProductAudit> RetrieveProductAudits();
-    IQueryable<ProductAudit> RetrieveProductAuditsSortByDate(DateOnly date);
+    IQueryable<ProductAudit> RetrieveProductAuditsSortByDate(DateTime date);
     ValueTask<ProductAudit> RemoveProductAuditAsync(int id);
 }

@@ -1,5 +1,4 @@
-﻿using AppMVC.Application.DataTransferObjects.Users;
-using AppMVC.Application.Services;
+﻿using AppMVC.Application.Services;
 using AppMVC.Domain.Entities;
 using AppMVC.Infrastructure.Repositories.Users;
 
@@ -17,52 +16,50 @@ public class UserService : IUserService
     }
 
 
-    public async ValueTask<UserDto> CreateUserAsync(
-        UserForCreationDto userForCreationDto)
+    public async ValueTask<User> CreateUserAsync(
+        User user)
     {
-        User user = userFactory.MapToUser(userForCreationDto);
-
         var createdUser = await userRepository.InsertAsync(user);
 
-        return userFactory.MapToUserDto(createdUser);
+        return createdUser;
     }
 
-    public IQueryable<UserDto> RetrieveUser()
+    public IQueryable<User> RetrieveUser() => 
+        userRepository.SelectAll();
+
+    public async ValueTask<User> RetrieveUserByIdAsync(int id) => 
+        await userRepository.SelectByIdAsync(id);
+
+    public async ValueTask<User> ModifyUserAsync(User user)
     {
-        IQueryable<User> users = userRepository.SelectAll();
+        User storageUser = await userRepository.SelectByIdAsync(user.Id);
 
-        return users.Select(user => userFactory.MapToUserDto(user));
+        userFactory.MapToUser(storageUser, user);
+
+        var modifyUser = await userRepository.UpdateAsync(storageUser);
+
+        return modifyUser;
     }
 
-    public async ValueTask<UserDto> RetrieveUserByIdAsync(int id)
-    {
-        User user = await userRepository.SelectByIdAsync(id);
-
-        return userFactory.MapToUserDto(user);
-    }
-
-    public async ValueTask<UserDto> ModifyUserAsync(UserForModificationDto userForModificationDto)
-    {
-        User user = await userRepository.SelectByIdAsync(userForModificationDto.id);
-
-        userFactory.MapToUser(user, userForModificationDto);
-
-        var modifyUser = await userRepository.UpdateAsync(user);
-
-        return userFactory.MapToUserDto(modifyUser);
-    }
-
-    public async ValueTask<UserDto> RemoveUserAsync(int id)
+    public async ValueTask<User> RemoveUserAsync(int id)
     {
         var user = await userRepository.SelectByIdAsync(id);
 
         var removedUser = await userRepository.RemoveAsync(user);
 
-        return userFactory.MapToUserDto(removedUser);
+        return removedUser;
     }
 
-    public IQueryable<User> RetrieveUserByUserNameAndPassword()
+    public User RetrieveUserByUserNameAndPassword(
+        string userName,
+        string password)
     {
-        return userRepository.SelectAll();
+        var storageUser = userRepository
+            .SelectAll()
+            .FirstOrDefault(
+            user => user.UserName == userName &&
+            user.PasswordHash == password);
+
+        return storageUser;
     }
 }

@@ -10,7 +10,8 @@ public class ProductService : IProductService
     private readonly IProductRepository productRepository;
     private readonly IConfiguration configuration;
 
-    public ProductService(IProductRepository productRepository,
+    public ProductService(
+        IProductRepository productRepository,
         IConfiguration configuration)
     {
         this.productRepository = productRepository;
@@ -27,12 +28,32 @@ public class ProductService : IProductService
         return createdProduct;
     }
 
+    public IQueryable<Product> RetrieveProducts()
+    {
+        return productRepository.SelectAll();
+    }
+
+    public async ValueTask<Product> RetrieveProductByIdAsync(int id)
+    {
+        return await productRepository.SelectByIdAsync(id);
+    }
+
     public async ValueTask<Product> ModifyProductAsync(
         Product product)
     {
-        var storageProduct = await productRepository.SelectByIdAsync(product.Id);
+        var storageProduct = await productRepository
+            .SelectByIdAsync(product.Id);
 
-        return await productRepository.UpdateAsync(product);
+        storageProduct.Title = product.Title;
+        storageProduct.Quantity = product.Quantity;
+        storageProduct.Price = product.Price;
+
+        var vat = double.Parse(configuration.GetSection("VAT:Value").Value);
+
+        storageProduct.TotalPrice = 
+            (storageProduct.Price * storageProduct.Quantity) * (1 + vat);
+
+        return await productRepository.UpdateAsync(storageProduct);
     }
 
     public async ValueTask<Product> RemoveProductAsync(int id)
@@ -42,13 +63,4 @@ public class ProductService : IProductService
         return await productRepository.RemoveAsync(product);
     }
 
-    public IQueryable<Product> RetrieveProduct()
-    {
-        return productRepository.SelectAll();
-    }
-
-    public async ValueTask<Product> RetrieveProductByIdAsync(int id)
-    {
-        return await productRepository.SelectByIdAsync(id);
-    }
 }

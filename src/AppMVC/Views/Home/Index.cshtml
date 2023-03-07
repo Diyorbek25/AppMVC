@@ -1,64 +1,75 @@
 ﻿@model IQueryable<AppMVC.Domain.Entities.Product>
 
-
-<style>
-    table, th, td {
-    border: 1px solid black;
-    border-collapse: collapse;
-    padding: 10px;
-    }
-    th {
-    background-color: lightgray;
-    }
-</style>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.6.0/css/bootstrap.min.css" />
 
 <h3>Products</h3>
 
-    <div>
-        <button class="btn btn-success"> 
-            <a style="text-decoration:none; color:white" asp-controller="User" asp-action="Logout">Logout</a> 
-        </button>
-    </div>
+<div>
+    <button class="btn btn-success">
+        <a style="text-decoration:none; color:white" asp-controller="User" asp-action="Logout">Logout</a>
+    </button>
+</div>
 
-    <table>
-      <tr>
-        <th style="padding:0 15px 0 15px;">id </th>
-        <th style="padding:0 15px 0 30px;">Title</th>
-        <th style="padding:0 15px 0 30px;">Quantity</th>
-        <th style="padding:0 15px 0 30px;">Price</th>
-      </tr>
-
-        @foreach (var item in Model)
-        {
-               <tr>
-                   <td style="padding:0 15px 0 15px;"> @Html.DisplayFor(modelItem => item.Id) </td>
-                   <td style="padding:0 15px 0 30px;"> @Html.DisplayFor(modelItem => item.Title)</td>
-                   <td style="padding:0 15px 0 30px;"> @Html.DisplayFor(modelItem => item.Quantity)</td>
-                   <td style="padding:0 15px 0 30px;"> @Html.DisplayFor(modelItem => item.Price)</td>
+@if (Model == null || !Model.Any())
+{
+    <p>No products found.</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Title</th>
+                <th>Quantity</th>
+                <th>Price</th>
+                <th>Total Price</th>
                 @if (User.IsInRole("Admin"))
                 {
-                   <td style="padding:0 15px 0 30px;"> 
-                       <a asp-controller="Home" asp-action="EditProduct" asp-route-productId="@item.Id">Edit</a> 
-                   </td>
-                   <td style="padding:0 15px 0 30px;"> 
-                       <a style="color:red" asp-controller="Home" asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-                   </td>
+                    <th>Edit</th>
+                    <th>Delete</th>
                 }
-              </tr>   
-        }
-
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@Html.DisplayFor(modelItem => item.Id)</td>
+                    <td>@Html.DisplayFor(modelItem => item.Title)</td>
+                    <td>@Html.DisplayFor(modelItem => item.Quantity)</td>
+                    <td>@Html.DisplayFor(modelItem => item.Price)</td>
+                    <td>@Html.DisplayFor(modelItem => item.TotalPrice)</td>
+                    @if (User.IsInRole("Admin"))
+                    {
+                        <td>
+                            <a class="btn btn-primary" href="@Url.Action("EditProduct", "Home", new { productId = item.Id })">Edit</a>
+                        </td>
+                        <td>
+                            <button class="btn btn-danger delete-button" data-id="@item.Id">Delete</button>
+                        </td>
+                    }
+                </tr>
+            }
+        </tbody>
     </table>
+}
 
 @if (User.IsInRole("Admin"))
 {
-    <div class="form-group mt-4" style="display: inline-block; margin-right: 10px;">
-        <button class="btn btn-success">
-            <a style="text-decoration:none; color:white" asp-controller="Home" asp-action="Create">Add new</a> 
-        </button>
-    </div>    
-    <div class="form-group m-lg-5" style="display: inline-block;">
-        <button class="btn btn-info">
-            <a style="text-decoration:none; color:white" asp-controller="Home" asp-action="History">History</a> 
-        </button>
+    <div class="btn-group mt-4" role="group">
+        <a class="btn btn-success" href="@Url.Action("Create", "Home")">Add new</a>
+        <a class="btn btn-info" href="@Url.Action("History", "Home")">History</a>
     </div>
+}
+
+@section Scripts {
+    <script>
+        $(".delete-button").click(function () {
+            var id = $(this).data("id");
+            if (confirm("Are you sure you want to delete this product?")) {
+                window.location.href = "@Url.Action("Delete", "Home")/" + id;
+            }
+        });
+    </script>
 }
