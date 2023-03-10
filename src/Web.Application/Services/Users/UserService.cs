@@ -24,7 +24,7 @@ public class UserService : IUserService
         return createdUser;
     }
 
-    public IQueryable<User> RetrieveUser() => 
+    public IQueryable<User> RetrieveUsers() => 
         userRepository.SelectAll();
 
     public async ValueTask<User> RetrieveUserByIdAsync(int id) => 
