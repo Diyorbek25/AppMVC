@@ -10,11 +10,11 @@ public sealed class UserConfiguration : IEntityTypeConfiguration<User>
     {
         builder.HasKey(user => user.Id);
 
-        builder.Property(user => user.UserName)
-            .HasMaxLength(50)
-            .IsRequired();
 
-        builder.Property(user => user.UserName)
+        builder.HasIndex(user => user.UserName)
+            .IsUnique();
+           
+        builder.Property(user => user.PasswordHash)
             .HasMaxLength(255)
             .IsRequired();
 
