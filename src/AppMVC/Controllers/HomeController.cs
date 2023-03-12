@@ -59,6 +59,12 @@ public class HomeController : Controller
         var product = await productService
             .RetrieveProductByIdAsync(productId);
 
+        if (product is null)
+        {
+            ModelState.AddModelError(string.Empty, "Product not found");
+            RedirectToAction("Index");
+        }
+
         return View(product);
     }
 
@@ -86,6 +92,11 @@ public class HomeController : Controller
 
         var modifiedProduct = await productService
             .ModifyProductAsync(newProduct);
+
+        if (modifiedProduct is not null)
+        {
+            TempData["Message"] = "Product has been saved.";
+        }
 
         await productAuditService
             .CreateProductAuditAsync(productAudit);
