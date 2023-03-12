@@ -10,6 +10,11 @@
     </button>
 </div>
 
+@if (TempData["Message"] != null)
+{
+    <div class="alert alert-success">@TempData["Message"]</div>
+}
+
 @if (Model == null || !Model.Any())
 {
     <p>No products found.</p>

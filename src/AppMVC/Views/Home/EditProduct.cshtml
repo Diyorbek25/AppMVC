@@ -26,10 +26,26 @@
                 <input asp-for="Price" class="form-control" type="number" min="0" step="any" required>
                 <span asp-validation-for="Price" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" asp-route-id="@Model.Id" />
-            </div>
+            @if (Model is not null)
+            {
+                <div class="form-group">
+                    <input type="submit" value="Save" class="btn btn-primary" asp-route-id="@Model.Id" />
+                </div>
+            }
         </form>
+        @if (TempData["Message"] != null)
+        {
+            <div id="saved-message" class="alert alert-success">@TempData["Message"]</div>
+        }
+        <script>
+            // Wait for 1 second and then remove the saved message
+            setTimeout(function () {
+                var savedMessage = document.getElementById("saved-message");
+                if (savedMessage) {
+                    savedMessage.parentNode.removeChild(savedMessage);
+                }
+            }, 2000);
+        </script>
     </div>
 </div>
 
